@@ -5,8 +5,10 @@ import uuid
 import json
 
 
-def get_product_info(category_item):
+def get_product_info(category_item, category_id):
+
     product_list = []
+
     # 카테고리 페이지 불러오기
     f = open('C://Users//안운빈//Desktop//nunc_data//nunc_category1.json','a',encoding='utf-8')
     for item in category_item:
@@ -16,7 +18,7 @@ def get_product_info(category_item):
         product['price'] = item.select_one("a.link.goodsDetail").get("data-price")
         product['brand'] = item.select_one("a.link.goodsDetail").get("data-brndnm")
         product['image_url'] = category_item[0].select_one("a.link.goodsDetail").get("data-imageurl")
-        product['category'] = 1 # 스킨/로션만, 카테고리마다 바꿔줘야됨
+        product['category'] = 1 # 스킨/로션만 1, 카테고리마다 바꿔줘야됨
         product['site'] = 5 # 눙크 5
         product['site_id'] = item.select_one("a.link.goodsDetail").get("data-goodsid")
         site_id = item.select_one("a.link.goodsDetail").get("data-goodsid")
@@ -29,7 +31,7 @@ def get_product_info(category_item):
         item_info = BeautifulSoup(requests.get(link).content, "html.parser", from_encoding="utf-8")
         target = item_info.find("table", {'class':'data-table medium'}).find_all("td")
 
-        #site_category = 입력으로 받기
+        product['site_category'] = category_id
         product['volume'] = target[0].getText().rstrip("ml")
         product['expiration_date'] = target[2].getText().replace("\r\n",'')
         product['usage'] = target[3].getText().replace("\r\n",' ')
@@ -37,17 +39,12 @@ def get_product_info(category_item):
         product['ingredients'] = target[6].getText().replace("\r\n",' ')
         product['caution'] = target[8].getText().replace("\r\n",' ')
 
-        # CONVERT dictionary to json using json.dump
         #json_product = json.dumps(product)
-        #print(json_product)
 
-        json.dump(product, f, indent='\n')
+        json.dump(product, f, indent='\n',ensure_ascii=False)
 
         #with open('C://Users//안운빈//Desktop//nunc_data//nunc_category1.json','r') as f:
             #data = json.load(f)
-
-
-        #print(json.dumps(data))
 
         product_list.append(product)
         
@@ -72,6 +69,6 @@ while(True):
         print("empty list")
         break
 
-    get_product_info(category_item)
+    get_product_info(category_item, site_category)
 
     page_num+=1
