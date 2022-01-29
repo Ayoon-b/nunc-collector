@@ -10,7 +10,6 @@ def get_product_info(category_item, category_id):
     product_list = []
 
     # 카테고리 페이지 불러오기
-    f = open('C://Users//안운빈//Desktop//nunc_data//nunc_category1.json','a',encoding='utf-8')
     for item in category_item:
         product = {}
         product['id'] = str(uuid.uuid4())
@@ -18,7 +17,7 @@ def get_product_info(category_item, category_id):
         product['price'] = item.select_one("a.link.goodsDetail").get("data-price")
         product['brand'] = item.select_one("a.link.goodsDetail").get("data-brndnm")
         product['image_url'] = category_item[0].select_one("a.link.goodsDetail").get("data-imageurl")
-        product['category'] = 1 # 스킨/로션만 1, 카테고리마다 바꿔줘야됨
+        product['category'] = 2 # 스킨/로션만 1, 카테고리마다 바꿔줘야됨
         product['site'] = 5 # 눙크 5
         product['site_id'] = item.select_one("a.link.goodsDetail").get("data-goodsid")
         site_id = item.select_one("a.link.goodsDetail").get("data-goodsid")
@@ -39,19 +38,9 @@ def get_product_info(category_item, category_id):
         product['ingredients'] = target[6].getText().replace("\r\n",' ')
         product['caution'] = target[8].getText().replace("\r\n",' ')
 
-        #json_product = json.dumps(product)
-
-        json.dump(product, f, indent='\n',ensure_ascii=False)
-
-        #with open('C://Users//안운빈//Desktop//nunc_data//nunc_category1.json','r') as f:
-            #data = json.load(f)
-
         product_list.append(product)
-        
-    f.close()
 
-    print(product_list)
-    print(len(product_list))
+    return product_list
 
     
 #category_info = requests.get("https://www.mynunc.com/product/goods/main?disCateId=20000126")
@@ -59,7 +48,8 @@ def get_product_info(category_item, category_id):
 site_category = input()
 
 page_num = 1
-
+f = open('C://Users//안운빈//Desktop//nunc_data//nunc_category_2.json','a',encoding='utf-8')
+product_list = []
 while(True):
     category_info = BeautifulSoup(requests.get("https://www.mynunc.com/product/goods/main?disCateId="
     +site_category+"&pageNum=&brandRadio=brndCnt&wordDetailSearch=&page="+str(page_num)).content, "html.parser", from_encoding="utf-8")
@@ -69,6 +59,12 @@ while(True):
         print("empty list")
         break
 
-    get_product_info(category_item, site_category)
+    product_list.extend(get_product_info(category_item, site_category))
 
     page_num+=1
+
+print(product_list)
+print(len(product_list))
+json.dump(product_list, f, indent='\n',ensure_ascii=False)
+
+f.close()
